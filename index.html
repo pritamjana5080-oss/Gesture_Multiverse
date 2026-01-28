@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Gesture Particles - Final Fix</title>
+    <title>Gesture Particles - Stable Universe</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000000; font-family: 'Courier New', Courier, monospace; }
         canvas { display: block; }
@@ -34,22 +34,21 @@
             background: rgba(10, 10, 10, 0.7);
             padding: 15px;
             border-left: 4px solid #00ffcc;
-            width: 300px;
+            width: 320px;
         }
-        #active-gesture { font-size: 1.4rem; color: #00ffcc; font-weight: bold; text-transform: uppercase; }
-        .legend { margin-top:10px; opacity:0.6; font-size: 0.8rem; line-height: 1.4em;}
+        #active-gesture { font-size: 1.2rem; color: #00ffcc; font-weight: bold; text-transform: uppercase; }
+        .legend { margin-top:10px; opacity:0.8; font-size: 0.8rem; line-height: 1.6em; color: #ddd; }
 
-        /* WATERMARK STYLE */
         #watermark {
             position: absolute;
             bottom: 15px;
             right: 20px;
-            color: #00ffcc; /* Neon Theme Color */
-            opacity: 0.5;   /* Semi-transparent */
+            color: #00ffcc;
+            opacity: 0.5;
             font-size: 0.9rem;
-            pointer-events: none; /* Prevent interference */
-            z-index: 30;    /* On top */
-            text-shadow: 0 0 2px rgba(0,0,0,0.8); /* Readability outline */
+            pointer-events: none;
+            z-index: 30;
+            text-shadow: 0 0 2px rgba(0,0,0,0.8);
             letter-spacing: 1px;
         }
     </style>
@@ -66,33 +65,35 @@
     <div id="ui">
         <h1>PARTICLE ENGINE</h1>
         <div class="hud-box">
-            <div>STATUS: <span id="active-gesture">Sphere</span></div>
-            <div id="debug-fingers" style="color:#666; font-size:10px; margin-top:5px;">Waiting for hand...</div>
+            <div>STATUS: <span id="active-gesture">UNIVERSE MODE</span></div>
+            <div id="debug-fingers" style="color:#666; font-size:10px; margin-top:5px;">Show Hand to Control</div>
         </div>
         <div class="legend">
-            ✊ 0: Black Hole (Disk)<br>
-            ☝️ 1: Sphere<br>
-            ✌️ 2: Heart<br>
-            🤟 3: Flower<br>
-            🖖 4: Saturn<br>
-            🖐 5: Explosion
+            ✊ 0: PRITIKA<br>
+            ☝️ 1: YOUR SMILE<br>
+            ✌️ 2: IS TOO<br>
+            🤟 3: PRECIOUS<br>
+            🖖 4: ALWAYS<br>
+            🖐 5: KEEP IT
         </div>
     </div>
 
-    <div id="watermark">@devpritamwork.co</div>
+    <div id="watermark">ᴅᴇᴠ∞ᴘʀɪᴛᴀᴍ</div>
 
 <script>
     // --- SETTINGS ---
     const CONFIG = {
-        particleCount: 12000, 
-        particleSize: 0.2,
-        morphSpeed: 0.05,
+        particleCount: 16000, 
+        particleSize: 0.16,
+        morphSpeed: 0.08, // Increased for snappier text formation
     };
 
     // --- THREE.JS INIT ---
     const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000000, 0.015);
+
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 35;
+    camera.position.z = 40;
 
     const renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -105,9 +106,9 @@
     const targets = new Float32Array(CONFIG.particleCount * 3);
     const colors = new Float32Array(CONFIG.particleCount * 3);
 
-    // Initial Positions
+    // Initial Universe
     for (let i = 0; i < CONFIG.particleCount * 3; i++) {
-        positions[i] = (Math.random() - 0.5) * 100;
+        positions[i] = (Math.random() - 0.5) * 200;
         targets[i] = positions[i];
         colors[i] = 1;
     }
@@ -127,119 +128,104 @@
     const particleSystem = new THREE.Points(geometry, material);
     scene.add(particleSystem);
 
-    // --- SHAPE FORMULAS (FIXED) ---
+    // --- TEXT GENERATION ENGINE ---
+    let currentTextPoints = [];
 
-    function getSpherePoint(r) {
-        const u = Math.random();
-        const v = Math.random();
-        const theta = 2 * Math.PI * u;
-        const phi = Math.acos(2 * v - 1);
-        return { 
-            x: r * Math.sin(phi) * Math.cos(theta), 
-            y: r * Math.sin(phi) * Math.sin(theta), 
-            z: r * Math.cos(phi) 
-        };
-    }
-
-    // FIXED: Heart Formula (Standard Parametric)
-    function getHeartPoint(scale) {
-        // Using rejection sampling for a solid volume is expensive, 
-        // so we use a hollow parametric shell which is reliable.
-        const t = Math.random() * Math.PI * 2;
-        const h = Math.random() * 2 - 1; // height variation for thickness
+    function generateTextPoints(text) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 350; 
+        canvas.height = 80;
         
-        // Base Heart Shape (2D)
-        let x = 16 * Math.pow(Math.sin(t), 3);
-        let y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0,0,350,80);
         
-        // Add thickness (Z) and scale
-        // We multiply by scale/16 to normalize roughly to 'scale' size
-        const s = scale * 0.05; 
-        
-        return { 
-            x: x * s, 
-            y: y * s, 
-            z: (Math.random() - 0.5) * scale * 0.5 // Random Z depth for 3D look
-        };
-    }
+        ctx.fillStyle = 'white';
+        const fontSize = text.length > 8 ? 35 : 45;
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 175, 40);
 
-    // FIXED: Black Hole (Accretion Disk)
-    // Instead of a point, we make a flat spiral galaxy
-    function getBlackHolePoint(scale) {
-        const angle = Math.random() * Math.PI * 2;
-        // Bias radius towards center (denser center)
-        const radius = scale * (0.2 + Math.pow(Math.random(), 2) * 1.5); 
-        const height = (Math.random() - 0.5) * 2; // Flat disk
+        const imageData = ctx.getImageData(0, 0, 350, 80);
+        const data = imageData.data;
+        const points = [];
 
-        return {
-            x: radius * Math.cos(angle),
-            y: height, // Flat on Y axis
-            z: radius * Math.sin(angle)
-        };
-    }
-
-    function getFlowerPoint(scale) {
-        const u = Math.random() * Math.PI * 2;
-        const v = Math.random() * Math.PI;
-        const r = scale * (1 + 0.6 * Math.sin(6 * u) * Math.sin(6 * v)); 
-        return { x: r * Math.sin(v) * Math.cos(u), y: r * Math.sin(v) * Math.sin(u), z: r * Math.cos(v) };
-    }
-
-    function getSaturnPoint(scale) {
-        if (Math.random() > 0.4) {
-            // Rings
-            const angle = Math.random() * Math.PI * 2;
-            const dist = scale * (1.5 + Math.random());
-            return { x: dist * Math.cos(angle), y: (Math.random()-0.5), z: dist * Math.sin(angle) };
-        } else {
-            // Planet
-            return getSpherePoint(scale * 0.7);
+        for(let y=0; y<80; y+=1) { 
+            for(let x=0; x<350; x+=1) {
+                const alpha = data[(y*350 + x)*4];
+                if(alpha > 128) {
+                    points.push({
+                        x: (x - 175) * 0.22, 
+                        y: (40 - y) * 0.22,
+                        z: 0
+                    });
+                }
+            }
         }
+        return points;
     }
-
-    function getFireworksPoint(scale) {
-        const r = scale * Math.pow(Math.random(), 0.5) * 2;
-        return getSpherePoint(r);
+    
+    function getTextTarget(index) {
+        if (currentTextPoints.length === 0) return {x:0, y:0, z:0};
+        const p = currentTextPoints[index % currentTextPoints.length];
+        return {
+            x: p.x + (Math.random()-0.5)*0.15,
+            y: p.y + (Math.random()-0.5)*0.15,
+            z: p.z + (Math.random()-0.5)*0.5 
+        };
     }
 
     // --- LOGIC ---
-    let currentShape = "Sphere";
+    let currentShape = "";
     let targetHandPos = new THREE.Vector3(0, 0, 0);
     let currentHandPos = new THREE.Vector3(0, 0, 0);
 
-    function setShape(type) {
-        if(currentShape === type) return;
-        currentShape = type;
-        document.getElementById('active-gesture').innerText = type;
+    function setShape(text, colorType) {
+        if(currentShape === text) return;
+        currentShape = text;
+        
+        const el = document.getElementById('active-gesture');
+        el.innerText = text;
+        
+        // --- MODE: UNIVERSE ---
+        if (text === "UNIVERSE") {
+            el.style.color = "#ffffff";
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                const i3 = i * 3;
+                targets[i3] = (Math.random() - 0.5) * 200;
+                targets[i3+1] = (Math.random() - 0.5) * 150;
+                targets[i3+2] = (Math.random() - 0.5) * 100;
+                
+                const r = Math.random();
+                if(r > 0.9) { colors[i3]=1; colors[i3+1]=0.8; colors[i3+2]=0.5; }
+                else if(r > 0.7) { colors[i3]=0.6; colors[i3+1]=0.8; colors[i3+2]=1; }
+                else { colors[i3]=0.8; colors[i3+1]=0.8; colors[i3+2]=0.8; }
+            }
+            geometry.attributes.color.needsUpdate = true;
+            return;
+        }
+
+        // --- MODE: TEXT ---
+        currentTextPoints = generateTextPoints(text);
 
         let colorFunc;
-        // Bright Vibrant Colors
-        switch(type) {
-            case "Heart": colorFunc = () => new THREE.Color(1.0, 0.0, 0.2); break; // Bright Red
-            case "Black Hole": colorFunc = () => new THREE.Color(0.8, 0.3, 1.0); break; // Purple/Violet
-            case "Saturn": colorFunc = () => new THREE.Color(1.0, 0.8, 0.2); break; // Gold
-            case "Fireworks": colorFunc = () => new THREE.Color(Math.random(), Math.random(), 1); break;
-            default: colorFunc = () => new THREE.Color(0.2, 1.0, 0.9); // Cyan
+        switch(colorType) {
+            case 0: colorFunc = () => new THREE.Color(1.0, 0.2, 0.6); el.style.color = "#ff3399"; break;
+            case 1: colorFunc = () => new THREE.Color(1.0, 0.9, 0.2); el.style.color = "#ffcc00"; break;
+            case 2: colorFunc = () => new THREE.Color(0.2, 1.0, 0.5); el.style.color = "#33ff88"; break;
+            case 3: colorFunc = () => new THREE.Color(0.2, 0.8, 1.0); el.style.color = "#33ccff"; break;
+            case 4: colorFunc = () => new THREE.Color(0.8, 0.4, 1.0); el.style.color = "#cc66ff"; break;
+            case 5: colorFunc = () => new THREE.Color(1.0, 0.5, 0.2); el.style.color = "#ff8833"; break;
+            default: colorFunc = () => new THREE.Color(1,1,1);
         }
 
         for (let i = 0; i < CONFIG.particleCount; i++) {
-            let p;
-            
-            if(type === "Black Hole") p = getBlackHolePoint(15); // Use new function
-            else if(type === "Heart") p = getHeartPoint(15);     // Use new function
-            else if(type === "Flower") p = getFlowerPoint(11);
-            else if(type === "Saturn") p = getSaturnPoint(10);
-            else if(type === "Fireworks") p = getFireworksPoint(15);
-            else p = getSpherePoint(12);
-
             const i3 = i * 3;
-            targets[i3] = p.x;
-            targets[i3+1] = p.y;
-            targets[i3+2] = p.z;
-
-            // Color Jitter
+            // No need to update targets here yet, we do it in animate loop relative to hand
+            // Just update colors
             const c = colorFunc();
-            const variance = (Math.random() - 0.5) * 0.2;
+            const variance = (Math.random() - 0.5) * 0.3;
             colors[i3] = Math.max(0, Math.min(1, c.r + variance));
             colors[i3+1] = Math.max(0, Math.min(1, c.g + variance));
             colors[i3+2] = Math.max(0, Math.min(1, c.b + variance));
@@ -247,62 +233,79 @@
         geometry.attributes.color.needsUpdate = true;
     }
 
-    // --- HAND TRACKING (ROBUST) ---
+    // --- HAND TRACKING & STABILIZER ---
     function dist(p1, p2) {
         return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
     }
 
     let gestureBuffer = [];
-    const BUFFER_SIZE = 10; 
+    const BUFFER_SIZE = 5; // Low latency buffer
+    let handLostFrames = 0; // To prevent flicker
+    const LOSS_THRESHOLD = 40; // ~1 second grace period before going back to Universe
 
     function onResults(results) {
+        const debugEl = document.getElementById('debug-fingers');
+
         if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            // HAND DETECTED
+            handLostFrames = 0; 
             const lm = results.multiHandLandmarks[0];
             
-            // Map Hand Position
+            // Map position
             const rawX = (0.5 - lm[9].x) * 50; 
             const rawY = (0.5 - lm[9].y) * 35;
             targetHandPos.set(rawX, rawY, 0);
 
-            // Finger Geometry Logic
+            // Gesture Logic
             const wrist = lm[0];
             const tips = [8, 12, 16, 20];
             const pips = [6, 10, 14, 18];
             
             let fingers = 0;
-
-            // Thumb (Angle check relative to pinky base)
-            const pinkyBase = lm[17];
-            if(dist(lm[4], pinkyBase) > dist(lm[3], pinkyBase) * 1.2) fingers++;
-
-            // Fingers (Distance check from wrist)
-            // If tip is further than PIP joint, it's open
+            // Thumb
+            if(dist(lm[4], lm[17]) > dist(lm[3], lm[17])) fingers++;
+            // Fingers
+            let otherFingers = 0;
             for(let i=0; i<4; i++) {
-                if(dist(lm[tips[i]], wrist) > dist(lm[pips[i]], wrist) * 1.1) fingers++;
+                if(dist(lm[tips[i]], wrist) > dist(lm[pips[i]], wrist)) otherFingers++;
             }
+            fingers += otherFingers;
 
-            document.getElementById('debug-fingers').innerText = `Fingers Detected: ${fingers}`;
+            // Wide hand 5-finger fix
+            if (otherFingers === 4 && dist(lm[4], lm[20]) > dist(lm[0], lm[9]) * 1.5) fingers = 5;
 
-            // Stabilize Gesture
+            debugEl.innerText = `Fingers: ${fingers}`;
+
             gestureBuffer.push(fingers);
             if (gestureBuffer.length > BUFFER_SIZE) gestureBuffer.shift();
             
-            // Get most common gesture in buffer
             const counts = {};
             gestureBuffer.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
-            const stableGesture = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+            const stableGesture = parseInt(Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b));
 
-            const g = parseInt(stableGesture);
-            if(g === 0) setShape("Black Hole");
-            else if(g === 1) setShape("Sphere");
-            else if(g === 2) setShape("Heart");
-            else if(g === 3) setShape("Flower");
-            else if(g === 4) setShape("Saturn");
-            else if(g === 5) setShape("Fireworks");
+            // Trigger Text
+            if(stableGesture === 0) setShape("PRITIKA", 0);
+            else if(stableGesture === 1) setShape("YOUR SMILE", 1);
+            else if(stableGesture === 2) setShape("IS TOO", 2);
+            else if(stableGesture === 3) setShape("PRECIOUS", 3);
+            else if(stableGesture === 4) setShape("ALWAYS", 4);
+            else if(stableGesture === 5) setShape("KEEP IT", 5);
+
+        } else {
+            // NO HAND DETECTED
+            handLostFrames++;
+            if(handLostFrames > LOSS_THRESHOLD) {
+                // Only go to Universe after grace period expires
+                if(currentShape !== "UNIVERSE") {
+                    setShape("UNIVERSE", -1);
+                }
+                debugEl.innerText = "No Hand Detected";
+            } else {
+                debugEl.innerText = "Holding..."; // Grace period active
+            }
         }
     }
 
-    // MediaPipe Setup
     const videoElement = document.getElementById('input_video');
     const hands = new Hands({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
     hands.setOptions({ maxNumHands: 1, modelComplexity: 0, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
@@ -314,42 +317,55 @@
     });
     cameraUtils.start();
 
-    // --- ANIMATION LOOP ---
+    // --- ANIMATION ---
     const clock = new THREE.Clock();
 
     function animate() {
         requestAnimationFrame(animate);
         const time = clock.getElapsedTime();
 
-        // 1. Smooth Hand Follow
+        // Smoothly move center
         currentHandPos.lerp(targetHandPos, 0.1);
 
-        // 2. Particle Move
         const pAttr = geometry.attributes.position;
+        
+        // Determine current morph speed
+        // Fast snap to text (0.08), slow drift to universe (0.02)
+        const speed = currentShape === "UNIVERSE" ? 0.02 : 0.08;
+
         for (let i = 0; i < CONFIG.particleCount; i++) {
             const i3 = i * 3;
             const px = pAttr.array[i3];
             const py = pAttr.array[i3+1];
             const pz = pAttr.array[i3+2];
 
-            const tx = targets[i3] + currentHandPos.x;
-            const ty = targets[i3+1] + currentHandPos.y;
-            const tz = targets[i3+2] + currentHandPos.z;
+            let tx, ty, tz;
 
-            // Standard Morph
-            let vx = (tx - px) * CONFIG.morphSpeed;
-            let vy = (ty - py) * CONFIG.morphSpeed;
-            let vz = (tz - pz) * CONFIG.morphSpeed;
-
-            // Extra Life
-            if(currentShape === "Fireworks") {
-                vx += (Math.random()-0.5) * 0.5;
-                vy += (Math.random()-0.5) * 0.5;
-                vz += (Math.random()-0.5) * 0.5;
+            if (currentShape === "UNIVERSE") {
+                // Use stored random targets
+                tx = targets[i3];
+                ty = targets[i3+1];
+                tz = targets[i3+2];
             } else {
-                // Subtle breathing
-                vx += Math.sin(time + px * 0.1) * 0.01;
-                vy += Math.cos(time + py * 0.1) * 0.01;
+                // Calculate text target + Hand Offset on the fly
+                // This prevents text from getting "stuck" if hand moves
+                const p = getTextTarget(i); 
+                tx = p.x + currentHandPos.x;
+                ty = p.y + currentHandPos.y;
+                tz = p.z + currentHandPos.z;
+            }
+
+            let vx = (tx - px) * speed;
+            let vy = (ty - py) * speed;
+            let vz = (tz - pz) * speed;
+
+            // Alive Motion
+            if (currentShape === "UNIVERSE") {
+                vx += Math.sin(time * 0.5 + py * 0.05) * 0.02;
+                vy += Math.cos(time * 0.3 + px * 0.05) * 0.02;
+            } else {
+                vx += Math.sin(time * 3 + py * 0.5) * 0.005;
+                vy += Math.cos(time * 2 + px * 0.5) * 0.005;
             }
 
             pAttr.array[i3] += vx;
@@ -358,16 +374,13 @@
         }
         pAttr.needsUpdate = true;
 
-        // 3. Global Rotation
-        // Spin fast for Black Hole, slow for others
-        if(currentShape === "Black Hole") {
-            particleSystem.rotation.z += 0.05; // Spin flat disk
-            particleSystem.rotation.y = currentHandPos.x * 0.02; // Tilt slightly
+        if(currentShape === "UNIVERSE") {
+             particleSystem.rotation.y += 0.0005;
         } else {
-            particleSystem.rotation.y = time * 0.1;
-            particleSystem.rotation.z = 0; // Reset tilt
+             // Reset rotation so text is readable
+             particleSystem.rotation.y = THREE.MathUtils.lerp(particleSystem.rotation.y, 0, 0.1);
         }
-
+        
         renderer.render(scene, camera);
     }
 
@@ -377,7 +390,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    setShape("Sphere");
+    setShape("UNIVERSE", -1);
     animate();
 </script>
 </body>
